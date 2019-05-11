@@ -8,7 +8,7 @@ namespace Labo2.Models
 {
     public enum Type
     {
-        Food,
+        food,
         utilities,
         transportation,
         outing,

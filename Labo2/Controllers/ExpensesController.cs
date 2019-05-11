@@ -23,7 +23,7 @@ namespace Labo2.Controllers
         public IEnumerable<Expense> Get([FromQuery]DateTime? from,[FromQuery]DateTime? to,[FromQuery]String type)
         {
             IQueryable<Expense> result = context.Expenses.Include(f=>f.Comments);
-            if (from==null & to==null)
+            if (from==null & to==null & type==null)
             {
                 return result;
             }
