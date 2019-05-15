@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Labo2.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,13 @@ namespace Labo2.Controllers
             this.context = context;
         }
 
-        // GET: api/Expenses
+        /// <summary>
+        /// Gets all the expenses
+        /// </summary>
+        /// <param name="from">Optional, filter by minimum DatePicked.</param>
+        /// <param name="to">Optional, filter by maximum DatePicked.</param>
+        /// <param name="type">A list of expenses objects</param>
+        /// <returns></returns>
         [HttpGet]
         public IEnumerable<Expense> Get([FromQuery]DateTime? from,[FromQuery]DateTime? to,[FromQuery]String type)
         {
@@ -57,7 +64,32 @@ namespace Labo2.Controllers
             return Ok(existing);
         }
 
-        // POST: api/Expenses
+
+        /// <summary>
+        /// Add an expense.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /Expenses
+        ///     {
+        ///          "id": 2,
+        ///          "description": "Des2",
+        ///          "sum": 32.5,
+        ///          "location": "Loc2",
+        ///          "currency": "Euro",
+        ///          "type": "other",
+        ///          "date": "0001-01-01T00:00:00",
+        ///          "comments": [
+        ///
+        ///
+        ///         ]
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="expense">The expense to add.</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
         public void Post([FromBody] Expense expense)
         {
