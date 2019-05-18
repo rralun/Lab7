@@ -87,7 +87,7 @@ namespace Labo2.Controllers
         ///     }
         ///
         /// </remarks>
-        /// <param name="expense">The expense to add.</param>
+        /// <param name="expense">The expense to add</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
