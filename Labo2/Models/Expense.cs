@@ -31,6 +31,7 @@ namespace Labo2.Models
         public string Type { get; set; }
         public DateTime Date { get; set; }
         public List<Comment>Comments { get; set; }
+     // public DateTime? DatePicked { get; internal set; }
     }
 }
 

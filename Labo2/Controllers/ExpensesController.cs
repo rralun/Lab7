@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Labo2.Models;
+using Labo2.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,56 +14,40 @@ namespace Labo2.Controllers
     [ApiController]
     public class ExpensesController : ControllerBase
     {
-        private ExpensesDbContext context;
-        public ExpensesController(ExpensesDbContext context)
+        private IExpenseService expenseService;
+        public ExpensesController(IExpenseService expenseService)
         {
-            this.context = context;
+            this.expenseService = expenseService;
         }
+
 
         /// <summary>
         /// Gets all the expenses
         /// </summary>
-        /// <param name="from">Optional, filter by minimum DatePicked.</param>
-        /// <param name="to">Optional, filter by maximum DatePicked.</param>
-        /// <param name="type">A list of expenses objects</param>
+        /// <param name="from">Optional, filter by minimum Date.</param>
+        /// <param name="to">Optional, filter by maximum Date.</param>
+        /// <param name="type">Optional, filter by type</param>
         /// <returns></returns>
         [HttpGet]
-        public IEnumerable<Expense> Get([FromQuery]DateTime? from,[FromQuery]DateTime? to,[FromQuery]String type)
+        public IEnumerable<Expense> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to, [FromQuery]String type)
         {
-            IQueryable<Expense> result = context.Expenses.Include(f=>f.Comments);
-            if (from==null & to==null & type==null)
-            {
-                return result;
-            }
-            if (from !=null)
-            {
-                result = result.Where(f => f.Date >= from);
-
-            }
-            if (to !=null)
-            {
-                result=result.Where(f => f.Date <= to);
-            }
-            if (type!=null)
-            {
-                result=result.Where(f => f.Type.Equals(type));
-            }
-            return result;
-           
+            return expenseService.GetAll(from, to,type);
         }
 
         // GET: api/Expenses/5
         [HttpGet("{id}", Name = "Get")]
+       
+
         public IActionResult Get(int id)
         {
-            var existing = context.Expenses.FirstOrDefault(expense => expense.Id == id);
-            if (existing == null)
+            var found = expenseService.GetById(id);
+            if (found == null)
             {
                 return NotFound();
             }
-
-            return Ok(existing);
+            return Ok(found);
         }
+
 
 
         /// <summary>
@@ -91,45 +76,32 @@ namespace Labo2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public void Post([FromBody] Expense expense)
+       
+       public void Post([FromBody] Expense expense)
         {
-            //if (!ModelState.IsValid)
-            //{
-
-            //}
-            context.Expenses.Add(expense);
-            context.SaveChanges();
+            expenseService.Create(expense);
         }
+
 
         // PUT: api/Expenses/5
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] Expense expense)
         {
-            var existing = context.Expenses.AsNoTracking().FirstOrDefault(f => f.Id == id);
-            if (existing == null)
-            {
-                context.Expenses.Add(expense);
-                context.SaveChanges();
-                return Ok(expense);
-            }
-            expense.Id = id;
-            context.Expenses.Update(expense);
-            context.SaveChanges();
-            return Ok(expense);
+            var result = expenseService.Upsert(id, expense);
+            return Ok(result);
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var existing = context.Expenses.FirstOrDefault(Expense => Expense.Id == id);
-            if (existing == null)
+            var result = expenseService.Delete(id);
+            if (result == null)
             {
                 return NotFound();
             }
-            context.Expenses.Remove(existing);
-            context.SaveChanges();
-            return Ok();
+            return Ok(result);
         }
+
     }
 }
