@@ -60,6 +60,7 @@ namespace Labo2
             });
             // Dependency Injection
             services.AddScoped<IExpenseService, ExpenseService>();
+            services.AddScoped<ICommentService, CommentService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -8,30 +8,34 @@ namespace Labo2.Models
 {
     public enum Type
     {
-        food,
-        utilities,
-        transportation,
-        outing,
-        groceries,
-        clothes,
-        electronics,
-        other
+        Utilities,
+        Food,
+        Transportation,
+        Outing,
+        Groceries,
+        Clothes,
+        Electronics,
+        Other
     }
-   
     public class Expense
     {
-
-        //[Key()]
         public int Id { get; set; }
+
         public string Description { get; set; }
-        public double Sum { get; set; }
-        public string Location { get; set; }
-        public string Currency { get; set; }
+
         [EnumDataType(typeof(Type))]
-        public string Type { get; set; }
+
+        public Type Type { get; set; }
+
+        public string Location { get; set; }
+
         public DateTime Date { get; set; }
-        public List<Comment>Comments { get; set; }
-     // public DateTime? DatePicked { get; internal set; }
+
+        public string Currency { get; set; }
+
+        public double Sum { get; set; }
+
+        public List<Comment> Comments { get; set; }
+
     }
 }
-
