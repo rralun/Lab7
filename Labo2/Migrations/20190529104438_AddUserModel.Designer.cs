@@ -4,14 +4,16 @@ using Labo2.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Labo2.Migrations
 {
     [DbContext(typeof(ExpensesDbContext))]
-    partial class ExpensesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190529104438_AddUserModel")]
+    partial class AddUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,8 +27,6 @@ namespace Labo2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AddedById");
-
                     b.Property<int?>("ExpenseId");
 
                     b.Property<bool>("Important");
@@ -34,8 +34,6 @@ namespace Labo2.Migrations
                     b.Property<string>("Text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddedById");
 
                     b.HasIndex("ExpenseId");
 
@@ -47,8 +45,6 @@ namespace Labo2.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("AddedById");
 
                     b.Property<string>("Currency");
 
@@ -63,8 +59,6 @@ namespace Labo2.Migrations
                     b.Property<int>("Type");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddedById");
 
                     b.ToTable("Expenses");
                 });
@@ -87,30 +81,14 @@ namespace Labo2.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Username")
-                        .IsUnique()
-                        .HasFilter("[Username] IS NOT NULL");
-
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Labo2.Models.Comment", b =>
                 {
-                    b.HasOne("Labo2.Models.User", "AddedBy")
-                        .WithMany()
-                        .HasForeignKey("AddedById");
-
-                    b.HasOne("Labo2.Models.Expense", "Expense")
+                    b.HasOne("Labo2.Models.Expense")
                         .WithMany("Comments")
-                        .HasForeignKey("ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Labo2.Models.Expense", b =>
-                {
-                    b.HasOne("Labo2.Models.User", "AddedBy")
-                        .WithMany()
-                        .HasForeignKey("AddedById");
+                        .HasForeignKey("ExpenseId");
                 });
 #pragma warning restore 612, 618
         }

@@ -30,15 +30,17 @@ namespace Labo2.Controllers
         /// 
         /// </summary>
         /// <param name="filter">Optional, filtered by text</param>
+        /// <param name="page"></param>
         /// <returns>List of comments</returns>
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         // GET: api/Comments
         [HttpGet]
-        public IEnumerable<CommentGetModel> Get([FromQuery]String filter)
+        public PaginatedList<CommentGetModel> Get([FromQuery]string filter, int page = 1)
         {
-            return commentService.GetAll(filter);
+            page = Math.Max(page, 1);
+            return commentService.GetAll(page, filter);
         }
     }
 

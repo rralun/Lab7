@@ -1,72 +1,41 @@
 ﻿using Labo2.Models;
 using Labo2.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
+
 
 namespace Labo2.Services
 {
     public interface ICommentService
     {
-
-        IEnumerable<CommentGetModel> GetAll(String filter);
-
+        PaginatedList<CommentGetModel> GetAll(int page, string filter);
     }
-
     public class CommentService : ICommentService
     {
-
         private ExpensesDbContext context;
-
         public CommentService(ExpensesDbContext context)
         {
             this.context = context;
         }
 
-        public IEnumerable<CommentGetModel> GetAll(String filter)
+        public PaginatedList<CommentGetModel> GetAll(int page, string filter)
         {
-            IQueryable<Expense> result = context.Expenses.Include(c => c.Comments);
+            IQueryable<Comment> result = context
+                .Comment
+                .Where(c => string.IsNullOrEmpty(filter) || c.Text.Contains(filter))
+                .OrderBy(c => c.Id)
+                .Include(c => c.Expense);
+            var paginatedResult = new PaginatedList<CommentGetModel>();
+            paginatedResult.CurrentPage = page;
 
-            List<CommentGetModel> resultComments = new List<CommentGetModel>();
-            List<CommentGetModel> resultCommentsAll = new List<CommentGetModel>();
+            paginatedResult.NumberOfPages = (result.Count() - 1) / PaginatedList<CommentGetModel>.EntriesPerPage + 1;
+            result = result
+                .Skip((page - 1) * PaginatedList<CommentGetModel>.EntriesPerPage)
+                .Take(PaginatedList<CommentGetModel>.EntriesPerPage);
+            paginatedResult.Entries = result.Select(c => CommentGetModel.FromComment(c)).ToList();
 
-            foreach (Expense expense in result)
-            {
-                expense.Comments.ForEach(c =>
-                {
-                    if (c.Text == null || filter == null)
-                    {
-                        CommentGetModel comment = new CommentGetModel
-                        {
-                            Id = c.Id,
-                            Important = c.Important,
-                            Text = c.Text,
-                            ExpenseId = expense.Id
-
-                        };
-                        resultCommentsAll.Add(comment);
-                    }
-                    else if (c.Text.Contains(filter))
-                    {
-                        CommentGetModel comment = new CommentGetModel
-                        {
-                            Id = c.Id,
-                            Important = c.Important,
-                            Text = c.Text,
-                            ExpenseId = expense.Id
-
-                        };
-                        resultComments.Add(comment);
-
-                    }
-                });
-            }
-            if (filter == null)
-            {
-                return resultCommentsAll;
-            }
-            return resultComments;
+            return paginatedResult;
         }
+
     }
 }

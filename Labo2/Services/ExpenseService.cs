@@ -11,13 +11,13 @@ namespace Labo2.Services
     public interface IExpenseService
     {
 
-        IEnumerable<Expense> GetAll(DateTime? from = null, DateTime? to = null, Models.Type? type = null);
+        PaginatedList<ExpenseGetModel> GetAll(int page, DateTime? from = null, DateTime? to = null, Models.Type? type = null);
 
         Expense GetById(int id);
 
-        Expense Create(Expense user);
+        Expense Create(ExpensePostModel expense, User addedBy);
 
-        Expense Upsert(int id, Expense user);
+        Expense Upsert(int id, Expense expense);
 
         Expense Delete(int id);
 
@@ -33,11 +33,13 @@ namespace Labo2.Services
         }
 
 
-        public Expense Create(Expense expense)
+        public Expense Create(ExpensePostModel expense, User addedBy)
         {
-            context.Expenses.Add(expense);
+            Expense toAdd = ExpensePostModel.ToExpense(expense);
+            toAdd.AddedBy = addedBy;
+            context.Expenses.Add(toAdd);
             context.SaveChanges();
-            return expense;
+            return toAdd;
         }
 
         public Expense Delete(int id)
@@ -52,27 +54,35 @@ namespace Labo2.Services
             return existing;
         }
 
-        public IEnumerable<Expense> GetAll(DateTime? from = null, DateTime? to = null, Models.Type? type = null)
+        public PaginatedList<ExpenseGetModel> GetAll(int page, DateTime? from = null, DateTime? to = null, Models.Type? type = null)
         {
-            IQueryable<Expense> result = context.Expenses.Include(x => x.Comments);
-            if ((from == null && to == null) && type == null)
+            IQueryable<Expense> result = context
+               .Expenses
+               .OrderBy(t => t.Id)
+               .Include(t => t.Comments);
+            PaginatedList<ExpenseGetModel> paginatedResult = new PaginatedList<ExpenseGetModel>();
+            paginatedResult.CurrentPage = page;
 
-            {
-                return result;
-            }
             if (from != null)
             {
-                result = result.Where(e => e.Date >= from);
+                result = result.Where(d => d.Date >= from);
             }
             if (to != null)
             {
-                result = result.Where(e => e.Date <= to);
+                result = result.Where(d => d.Date <= to);
             }
             if (type != null)
             {
                 result = result.Where(e => e.Type == type);
             }
-            return result;
+            paginatedResult.NumberOfPages = (result.Count() - 1) / PaginatedList<ExpenseGetModel>.EntriesPerPage + 1;
+            result = result
+                .Skip((page - 1) * PaginatedList<ExpenseGetModel>.EntriesPerPage)
+                .Take(PaginatedList<ExpenseGetModel>.EntriesPerPage);
+            paginatedResult.Entries = result.Select(e => ExpenseGetModel.FromExpense(e)).ToList();
+
+            return paginatedResult;
+            
         }
 
         public Expense GetById(int id)

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Labo2.Models;
 using Labo2.Services;
+using Labo2.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +14,11 @@ namespace Labo2.Controllers
     public class ExpensesController : ControllerBase
     {
         private IExpenseService expenseService;
-        public ExpensesController(IExpenseService expenseService)
+        private IUsersService usersService;
+        public ExpensesController(IExpenseService expenseService, IUsersService usersService)
         {
             this.expenseService = expenseService;
+            this.usersService = usersService;
         }
         ///<remarks>
         ///  {
@@ -48,14 +49,16 @@ namespace Labo2.Controllers
         /// <param name="from">Optional, filtered by minimum date</param>
         /// <param name="to">Optional, filtered by maximu date</param>
         /// <param name="type">Optional, filtered by type</param>
+        /// <param name="page"></param>
         /// <returns>A list of expenses</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         // GET: api/Expenses
         [HttpGet]
-        public IEnumerable<Expense> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to, [FromQuery]Models.Type? type)
+        public PaginatedList<ExpenseGetModel> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to, [FromQuery]Models.Type? type, int page)
         {
-            return expenseService.GetAll(from, to, type);
+            page = Math.Max(page, 1);
+            return expenseService.GetAll(page, from, to, type);
         }
 
         ///<remarks>
@@ -106,11 +109,12 @@ namespace Labo2.Controllers
         /// <param name="expense"></param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // POST: api/Expenses
+        [Authorize]
         [HttpPost]
-        public void Post([FromBody] Expense expense)
+        public void Post([FromBody] ExpensePostModel expense)
         {
-            expenseService.Create(expense);
+            User addedBy = usersService.GetCurrentUser(HttpContext);
+            expenseService.Create(expense, addedBy);
         }
         ///<remarks>
         ///{

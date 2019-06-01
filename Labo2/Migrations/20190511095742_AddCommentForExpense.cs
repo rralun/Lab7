@@ -8,19 +8,19 @@ namespace Labo2.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
-                name: "TaskId",
-                table: "Comments",
+                name: "ExpenseId",
+                table: "Comment",
                  nullable: true);
             migrationBuilder.CreateIndex(
-               name: "IX_Comments_TaskId",
-               table: "Comments",
-               column: "TaskId");
+               name: "IX_Comment_ExpenseId",
+               table: "Comment",
+               column: "ExpenseId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Comments_Tasks_TaskId",
-                table: "Comments",
-                column: "TaskId",
-                principalTable: "Tasks",
+                name: "FK_Commens_Expenses_ExpenseId",
+                table: "Comment",
+                column: "ExpenseId",
+                principalTable: "Expenses",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -28,16 +28,16 @@ namespace Labo2.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Comments_Tasks_TaskId",
-                table: "Comments");
+                name: "FK_Comment_Expenses_ExpenseId",
+                table: "Comment");
 
             migrationBuilder.DropIndex(
-                name: "IX_Comments_TaskId",
-                table: "Comments");
+                name: "IX_Comment_ExpenseId",
+                table: "Comment");
 
             migrationBuilder.DropColumn(
-                name: "TaskId",
-                table: "Comments");
+                name: "ExpenseId",
+                table: "Comment");
         }
     }
 }
