@@ -78,5 +78,37 @@ namespace Tests
                 Assert.AreEqual(2, number);
             }
         }
+        [Test]
+        public void AuthenticateShouldLogTheUser()
+        {
+            var options = new DbContextOptionsBuilder<ExpensesDbContext>()
+              .UseInMemoryDatabase(databaseName: nameof(AuthenticateShouldLogTheUser))
+              .Options;
+
+            using (var context = new ExpensesDbContext(options))
+            {
+                var usersService = new UsersService(context, config);
+                var added = new Labo2.ViewModels.RegisterPostModel
+                {
+                    Email = "userTest@test.com",
+                    FirstName = "User",
+                    LastName = "Test",
+                    Password = "1234567",
+                    Username = "test_user"
+                };
+                var result = usersService.Register(added);
+
+                var authenticate = new Labo2.ViewModels.LoginPostModel
+                {
+                    Username = "test_user",
+                    Password = "1234567",
+                };
+                var authenticateresult = usersService.Authenticate(added.Username, added.Password);
+
+                Assert.IsNotNull(authenticateresult);
+                Assert.AreEqual(1, authenticateresult.Id);
+                Assert.AreEqual(authenticate.Username, authenticateresult.Username);
+            }
+        }
     }
 }
