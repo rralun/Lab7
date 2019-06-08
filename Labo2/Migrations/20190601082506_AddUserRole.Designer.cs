@@ -4,14 +4,16 @@ using Labo2.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Labo2.Migrations
 {
     [DbContext(typeof(ExpensesDbContext))]
-    partial class ExpensesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190601082506_AddUserRole")]
+    partial class AddUserRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,8 +77,6 @@ namespace Labo2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("DataRegistered");
-
                     b.Property<string>("Email");
 
                     b.Property<string>("FirstName");
@@ -84,6 +84,8 @@ namespace Labo2.Migrations
                     b.Property<string>("LastName");
 
                     b.Property<string>("Password");
+
+                    b.Property<int>("UserRole");
 
                     b.Property<string>("Username");
 
@@ -94,44 +96,6 @@ namespace Labo2.Migrations
                         .HasFilter("[Username] IS NOT NULL");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Labo2.Models.UserRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserRoles");
-                });
-
-            modelBuilder.Entity("Labo2.Models.User_UserRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime?>("EndTime");
-
-                    b.Property<DateTime>("StartTime");
-
-                    b.Property<int>("UserId");
-
-                    b.Property<int>("UserRoleId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserRoleId");
-
-                    b.ToTable("User_UserRoles");
                 });
 
             modelBuilder.Entity("Labo2.Models.Comment", b =>
@@ -151,19 +115,6 @@ namespace Labo2.Migrations
                     b.HasOne("Labo2.Models.User", "AddedBy")
                         .WithMany()
                         .HasForeignKey("AddedById");
-                });
-
-            modelBuilder.Entity("Labo2.Models.User_UserRole", b =>
-                {
-                    b.HasOne("Labo2.Models.User", "User")
-                        .WithMany("User_UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Labo2.Models.UserRole", "UserRole")
-                        .WithMany("User_UserRoles")
-                        .HasForeignKey("UserRoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

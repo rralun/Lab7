@@ -36,10 +36,19 @@ namespace Labo2.Services
         public Expense Create(ExpensePostModel expense, User addedBy)
         {
             Expense toAdd = ExpensePostModel.ToExpense(expense);
-            toAdd.AddedBy = addedBy;
+            if (toAdd == null)
+            {
+                return null;
+            }
             context.Expenses.Add(toAdd);
             context.SaveChanges();
+
             return toAdd;
+            //Expense toAdd = ExpensePostModel.ToExpense(expense);
+            //toAdd.AddedBy = addedBy;
+            //context.Expenses.Add(toAdd);
+            //context.SaveChanges();
+            //return toAdd;
         }
 
         public Expense Delete(int id)
@@ -107,6 +116,10 @@ namespace Labo2.Services
             return expense;
         }
 
+        public object Upsert(int id, ExpensePostModel toExpense)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

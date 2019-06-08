@@ -17,15 +17,27 @@ namespace Labo2.Models
             builder.Entity<User>(entity => {
                 entity.HasIndex(u => u.Username).IsUnique();
             });
+            
+            //asa fac sa fie unica o cheie primara compusa (cu HasKey)
+            //builder.Entity<UserUserRole>(entity => {
+            //    entity.HasKey(u => new { u.UserId, u.UserRoleId }).IsUnique();
+            //});
 
             builder.Entity<Comment>()
                 .HasOne(e => e.Expense)
                 .WithMany(c => c.Comments)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //builder.Entity<Expense>()
+            //    .HasOne(e => e.AddedBy)
+            //    .WithMany(c => c.Expenses)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Comment> Comment { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<User_UserRole> User_UserRoles { get; set; }
     }
 }

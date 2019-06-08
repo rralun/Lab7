@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Labo2.Models;
 using Labo2.Services;
+using Labo2.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -95,6 +96,12 @@ namespace Labo2
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IRegisterValidator, RegisterValidator>();
+
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IUserRoleValidator, UserRoleValidator>();
+
+            services.AddScoped<IUser_UserRolesService, User_UserRolesService>();
 
         }
 
