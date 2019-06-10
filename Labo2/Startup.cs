@@ -96,12 +96,10 @@ namespace Labo2
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<IRegisterValidator, RegisterValidator>();
-
-            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IRegisterValidator, RegisterValidator>();            services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IUserRoleValidator, UserRoleValidator>();
 
-            services.AddScoped<IUser_UserRolesService, User_UserRolesService>();
+            //services.AddScoped<IUser_UserRolesService, User_UserRolesService>();
 
         }
 

@@ -9,30 +9,42 @@ namespace Labo2.Validators
 {
     public interface IUserRoleValidator
     {
-        ErrorsCollection Validate(User_UserRolePostModel user_userRolePostModel, ExpensesDbContext context);
+        ErrorsCollection Validate(UserRole userRole, ExpensesDbContext context);
     }
 
 
     public class UserRoleValidator : IUserRoleValidator
     {
-        public ErrorsCollection Validate(User_UserRolePostModel user_userRolePostModel, ExpensesDbContext context)
+        public ErrorsCollection Validate(UserRole userRole, ExpensesDbContext context)
         {
-            ErrorsCollection errorsCollection = new ErrorsCollection { Entity = nameof(User_UserRolePostModel) };
+            ErrorsCollection errorsCollection = new ErrorsCollection { Entity = nameof(UserRole) };
 
-            List<string> userRoles = context.UserRoles
-                .Select(userRole => userRole.Name)
-                .ToList();
-
-            if (!userRoles.Contains(user_userRolePostModel.UserRoleName))
+            var existing = context
+                .UserRoles
+                .FirstOrDefault(userRole1 => userRole1.Name == userRole.Name);
+            if (existing == null)
             {
-                errorsCollection.ErrorMessages.Add($"The userRole {user_userRolePostModel.UserRoleName} does not exists in Db!");
+                errorsCollection.ErrorMessages.Add("The role does not exist !");
             }
-
             if (errorsCollection.ErrorMessages.Count > 0)
             {
                 return errorsCollection;
             }
             return null;
+            //List<string> userRoles = context.UserRoles
+            //    .Select(userRole => userRole.Name)
+            //    .ToList();
+
+            //if (!userRoles.Contains(user_userRolePostModel.UserRoleName))
+            //{
+            //    errorsCollection.ErrorMessages.Add($"The userRole {user_userRolePostModel.UserRoleName} does not exists in Db!");
+            //}
+
+            //if (errorsCollection.ErrorMessages.Count > 0)
+            //{
+            //    return errorsCollection;
+            //}
+            //return null;
         }
     }
 }

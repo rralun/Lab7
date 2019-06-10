@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Labo2.Controllers
 {
+    [Authorize(Roles = "Admin,Regular")]
     [Route("api/[controller]")]
     [ApiController]
     public class ExpensesController : ControllerBase
@@ -53,6 +54,7 @@ namespace Labo2.Controllers
         /// <returns>A list of expenses</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [AllowAnonymous]
         // GET: api/Expenses
         [HttpGet]
         public PaginatedList<ExpenseGetModel> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to, [FromQuery]Models.Type? type, int page)
@@ -109,12 +111,12 @@ namespace Labo2.Controllers
         /// <param name="expense"></param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin,Regular")]
+       // [Authorize(Roles = "Admin,Regular")]
         [HttpPost]
         public void Post([FromBody] ExpensePostModel expense)
         {
             User addedBy = usersService.GetCurrentUser(HttpContext);
-            expenseService.Create(expense, addedBy: addedBy);
+            expenseService.Create(expense, addedBy);
         }
         ///<remarks>
         ///{
@@ -134,11 +136,12 @@ namespace Labo2.Controllers
         /// <param name="id">ID</param>
         /// <param name="expense">An expense to add or update</param>
         /// <returns>The added expense with all fields</returns>
+        /// 
+        [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize]
+        //[Authorize]
         // PUT: api/Expenses/2
-        [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] Expense expense)
         {
 
@@ -163,11 +166,12 @@ namespace Labo2.Controllers
         /// </summary>
         /// <param name="id">ID</param>
         /// <returns>The deleted item or not found</returns>
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize]
+        //[Authorize]
         // DELETE: api/ApiWithActions/2
-        [HttpDelete("{id}")]
+       
         public IActionResult Delete(int id)
         {
             var result = expenseService.Delete(id);

@@ -25,8 +25,11 @@ namespace Labo2.Services
         IEnumerable<UserGetModel> GetAll();
         UserGetModel GetById(int id);
         UserGetModel Create(UserPostModel userModel);
-        UserGetModel Upsert(int id, UserPostModel userPostModel);
-        UserGetModel Delete(int id);
+        User Upsert(int id, User user, User userCurrentLogin);
+        //UserGetModel Upsert(int id, UserPostModel userPostModel);
+        User Delete(int id);
+        UserGetRoleModel RoleChanges(int id, string Role, User currentUser);
+        IEnumerable<User_UserRoleGetModel> GetHistoryOfARole(int id);
     }
 
     public class UsersService : IUsersService
@@ -75,7 +78,7 @@ namespace Labo2.Services
                 Username = user.Username,
                 Token = tokenHandler.WriteToken(token)
             };
-
+            //first remove pw 
             return result;
         }
 
@@ -165,6 +168,13 @@ namespace Labo2.Services
 
         public IEnumerable<UserGetModel> GetAll()
         {
+            //return context.Users.Select(user => new UserGetModelWithRole
+            //{
+            //    Id = user.Id,
+            //    Email = user.Email,
+            //    Username = user.Username,
+
+            //});
             return context.Users.Select(user => UserGetModel.FromUser(user));
         }
 
@@ -187,38 +197,121 @@ namespace Labo2.Services
 
         }
 
-        public UserGetModel Upsert(int id, UserPostModel userPostModel)
+        public UserGetRoleModel RoleChanges(int id, string Role, User userCurrentLogin)
         {
-            var existing = context.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
-            if (existing == null)
+            DateTime dateCurrent = DateTime.Now;
+            TimeSpan diferenta = dateCurrent.Subtract(userCurrentLogin.DataRegistered);
+            var currentUserRole = GetCurrentUserRole(userCurrentLogin);
+            var user = context.Users.FirstOrDefault(u => u.Id == id);
+            var userRoleFromUserToChange = GetCurrentUserRole(user);
+            if ((currentUserRole.Name == "Admin" || diferenta.Days > 190) && userRoleFromUserToChange.Name != "Admin")
             {
-                User toAdd = UserPostModel.ToUser(userPostModel);
-                context.Users.Add(toAdd);
-                context.SaveChanges();
-                return UserGetModel.FromUser(toAdd);
+
+                var userActiveRole = user.User_UserRoles.FirstOrDefault(role => role.EndTime == null);
+                userActiveRole.EndTime = DateTime.Now;
+                var regularRole = context
+                   .UserRoles
+                   .FirstOrDefault(ur => ur.Name == Role);
+                if (regularRole != null)
+                {
+                    context.User_UserRoles.Add(new User_UserRole
+                    {
+                        User = user,
+                        UserRole = regularRole,
+                        StartTime = DateTime.Now,
+                        EndTime = null,
+                    });
+
+                }
             }
 
-            User toUpdate = UserPostModel.ToUser(userPostModel);
-            toUpdate.Id = id;
-            context.Users.Update(toUpdate);
-            context.SaveChanges();
-            return UserGetModel.FromUser(toUpdate);
+            return UserGetRoleModel.FromUser(user);
+
+        }
+
+        public IEnumerable<User_UserRoleGetModel> GetHistoryOfARole(int id)
+        {
+            
+            var result = context
+                .User_UserRoles
+                .Select(user_userRole => new User_UserRoleGetModel
+            {
+                User = user_userRole.User,
+                UserRole = user_userRole.UserRole,
+                StartTime = user_userRole.StartTime,
+                EndTime = user_userRole.EndTime,
+
+            }).Where(u => u.User.Id == id).OrderBy(us => us.StartTime).ToList();
+
+            return result;
         }
 
 
-        public UserGetModel Delete(int id)
+
+        public User Upsert(int id, User user, User userCurrentLogin)//UserGetModel Upsert(int id, UserPostModel userPostModel)
+        {
+            var existing = context
+                .Users
+                .AsNoTracking()
+                .FirstOrDefault(u => u.Id == id);
+            if (existing == null)
+            {
+                context.
+                    Users.Add(user);
+                context.SaveChanges();
+                return user;
+            }
+            DateTime currentDate = DateTime.Now;
+            TimeSpan diferenta = currentDate.Subtract(userCurrentLogin.DataRegistered);
+
+            user.Id = id;
+            var userCurentRole = GetCurrentUserRole(userCurrentLogin);
+            var curentRoleForExisting = GetCurrentUserRole(existing);
+            if ((userCurentRole.Name == "Admin" || diferenta.Days > 190) && curentRoleForExisting.Name != "Admin")
+            {
+                var getUserRole = GetCurrentUserRole(user);
+                RoleChanges(user.Id, getUserRole.Name, existing);
+                context.Users.Update(user);
+
+                context.SaveChanges();
+                return user;
+            }
+            var getUserRoleNotChangeRole = GetCurrentUserRole(user);
+            var getExistingRole = GetCurrentUserRole(existing);
+            RoleChanges(user.Id, getExistingRole.Name, existing);
+
+            context.Users.Update(user);
+            context.SaveChanges();
+            return user;
+            //var existing = context.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
+            //if (existing == null)
+            //{
+            //    User toAdd = UserPostModel.ToUser(userPostModel);
+            //    context.Users.Add(toAdd);
+            //    context.SaveChanges();
+            //    return UserGetModel.FromUser(toAdd);
+            //}
+
+            //User toUpdate = UserPostModel.ToUser(userPostModel);
+            //toUpdate.Id = id;
+            //context.Users.Update(toUpdate);
+            //context.SaveChanges();
+            //return UserGetModel.FromUser(toUpdate);
+        }
+
+
+        public User Delete(int id)
         {
             var existing = context.Users
-                .FirstOrDefault(u => u.Id == id);
+            .FirstOrDefault(user => user.Id == id);
             if (existing == null)
             {
                 return null;
             }
-
-            context.Users.Remove(existing);
+            existing.Removed = true;
+            context.Update(existing);
             context.SaveChanges();
-
-            return UserGetModel.FromUser(existing);
+            return existing;
         }
 
     }

@@ -1,5 +1,7 @@
-﻿using Labo2.Services;
+﻿using Labo2.Models;
+using Labo2.Services;
 using Labo2.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,19 +13,22 @@ namespace Labo2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Regular")]
     public class UserRolesController : ControllerBase
     {
         private IUserRoleService userRoleService;
-
-        public UserRolesController(IUserRoleService userRoleService)
+        private IUsersService usersService;
+        public UserRolesController(IUserRoleService userRoleService, IUsersService usersService)
         {
             this.userRoleService = userRoleService;
+            this.usersService = usersService;
         }
 
         /// <summary>
         /// Get all userRoles
         /// </summary>
         /// <returns>A list of all userRoles</returns>
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -75,13 +80,15 @@ namespace Labo2.Controllers
         ///        description = "Default role for new user"
         ///     }
         /// </remarks>
-        /// <param name="userPostModel">The input userRole to be added</param>
+        /// <param name="userRolePostModel">The input userRole to be added</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
         public void Post([FromBody] UserRolePostModel userRolePostModel)
         {
-            userRoleService.Create(userRolePostModel);
+            User addedBy = usersService.GetCurrentUser(HttpContext);
+            userRoleService.Create(userRolePostModel, addedBy);
+            
         }
 
 
@@ -99,8 +106,9 @@ namespace Labo2.Controllers
         ///     }
         /// </remarks>
         /// <returns>Status 200 daca a fost modificat</returns>
-        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Put(int id, [FromBody] UserRolePostModel userRolePostModel)
         {
             var result = userRoleService.Upsert(id, userRolePostModel);
@@ -113,10 +121,10 @@ namespace Labo2.Controllers
         /// </summary>
         /// <param name="id">UserRole id to delete</param>
         /// <returns></returns>
+
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var result = userRoleService.Delete(id);
@@ -126,9 +134,6 @@ namespace Labo2.Controllers
             }
             return Ok(result);
         }
-
-
-
 
     }
 }

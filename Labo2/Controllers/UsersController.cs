@@ -11,15 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Labo2.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, UserManager")]
     //[Route("api/[controller]/[action]")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private IUsersService userService;
+        //private IUser_UserRolesService user_userRolesService;
 
-        public UsersController(IUsersService userService)
+        public UsersController(IUsersService userService)//, IUser_UserRolesService user_userRolesService)
         {
             this.userService = userService;
         }
@@ -121,7 +122,7 @@ namespace Labo2.Controllers
         /// Modify an user if exists in dbSet , or add if not exist
         /// </summary>
         /// <param name="id">id-ul user to update</param>
-        /// <param name="userPostModel">obiect userPostModel to update</param>
+        /// <param name="user">obiect user to update</param>
         /// Sample request:
         ///     <remarks>
         ///     Put /users/id
@@ -137,40 +138,48 @@ namespace Labo2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize(Roles = "Admin,UserManager")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UserPostModel userPostModel)
+        public IActionResult Put(int id, [FromBody] User user)
         {
-            User curentUserLogIn = userService.GetCurrentUser(HttpContext);
+            var currentUserLogin = userService.GetCurrentUser(HttpContext);
+            var result = userService.Upsert(id, user, currentUserLogin);
+            return Ok(result);
 
-            //if (currentUserLogIn.User_UserRoles.Equals( "UserManager"))
-            //{
-            //    UserGetModel userToUpdate = userService.GetById(id);
+            //    User currentUserLogIn = userService.GetCurrentUser(HttpContext);
 
-            //    var UserRegisteredYear = currentUserLogIn.DataRegistered;        //data inregistrarii
-            //    var currentMonth = DateTime.Now;                                 //data curenta
-            //    var nrLuni = currentMonth.Subtract(UserRegisteredYear).Days / (365.25 / 12);   //diferenta in luni dintre date
+            //    string activeUserLogin = user_userRolesService.GetById(id)
+            //        .FirstOrDefault(u_ur => u_ur.EndTime == null)
+            //        .UserRoleName;
 
-            //    if (nrLuni >= 6)
+            //    if (activeUserLogin.Equals("UserManager"))
             //    {
-            //        var result3 = userService.Upsert(id, userPostModel);
-            //        return Ok(result3);
+            //        UserGetModel userToUpdate = userService.GetById(id);
+
+            //        var UserRegisteredYear = currentUserLogIn.DataRegistered;        //data inregistrarii
+            //        var currentMonth = DateTime.Now;                                 //data curenta
+            //        var nrLuni = currentMonth.Subtract(UserRegisteredYear).Days / (365.25 / 12);   //diferenta in luni dintre date
+
+            //        if (nrLuni >= 6)
+            //        {
+            //            var result3 = userService.Upsert(id, userPostModel);
+            //            return Ok(result3);
+            //        }
+
+            //        UserPostModel newUserPost = new UserPostModel
+            //        {
+            //            FirstName = userPostModel.FirstName,
+            //            LastName = userPostModel.LastName,
+            //            Username = userPostModel.Username,
+            //            Email = userPostModel.Email,
+            //            Password = userPostModel.Password,
+            //            UserRoles = userToUpdate.ToString()
+            //        };
+
+            //        var result2 = userService.Upsert(id, newUserPost);
+            //        return Ok(result2);
             //    }
 
-            //    UserPostModel newUserPost = new UserPostModel
-            //    {
-            //        FirstName = userPostModel.FirstName,
-            //        LastName = userPostModel.LastName,
-            //        Username = userPostModel.Username,
-            //        Email = userPostModel.Email,
-            //        Password = userPostModel.Password,
-            //        //UserRole = userToUpdate.UserRole.ToString()
-            //    };
-
-            //    var result2 = userService.Upsert(id, newUserPost);
-            //    return Ok(result2);
-            //}
-
-            var result = userService.Upsert(id, userPostModel);
-            return Ok(result);
+            //    var result = userService.Upsert(id, userPostModel);
+            //    return Ok(result);
         }
 
 
@@ -186,16 +195,53 @@ namespace Labo2.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-
-            User curentUserLogIn = userService.GetCurrentUser(HttpContext);
-
-            var result = userService.Delete(id);
-            if (result == null)
+            var existing = userService.Delete(id);
+            if (existing == null)
             {
-                return NotFound("User with the given id not found !");
+                return NotFound();
             }
-            return Ok(result);
+
+            return Ok(existing);
+            //User curentUserLogIn = userService.GetCurrentUser(HttpContext);
+
+            //var result = userService.Delete(id);
+            //if (result == null)
+            //{
+            //    return NotFound("User with the given id not found !");
+            //}
+            //return Ok(result);
         }
 
-    }   
+        [HttpPut]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult RoleChanges([FromQuery]int id, [FromBody] string Role)
+        {
+           
+            var currentUser = userService.GetCurrentUser(HttpContext);
+            var existing = userService.RoleChanges(id, Role, currentUser);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(existing);
+
+        }
+
+        [HttpGet("{id}", Name = "GetHistoryRoles")]
+        public IActionResult GetHistoryOfARole(int id)
+        {
+            var found = userService.GetHistoryOfARole(id);
+
+            if (found == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(found);
+        }
+
+    }
 }

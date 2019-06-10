@@ -12,9 +12,9 @@ namespace Labo2.Services
     {
         IEnumerable<UserRoleGetModel> GetAll();
         UserRoleGetModel GetById(int id);
-        UserRoleGetModel Create(UserRolePostModel userRolePostModel);
+        UserRoleGetModel Create(UserRolePostModel userRolePostModel, User currentUser);
         UserRoleGetModel Upsert(int id, UserRolePostModel userRolePostModel);
-        UserRoleGetModel Delete(int id);
+        UserRole Delete(int id);
     }
 
     public class UserRoleService : IUserRoleService
@@ -29,7 +29,9 @@ namespace Labo2.Services
 
         public IEnumerable<UserRoleGetModel> GetAll()
         {
-            return context.UserRoles.Select(userRol => UserRoleGetModel.FromUserRole(userRol));
+            return context
+                .UserRoles
+                .Select(userRol => UserRoleGetModel.FromUserRole(userRol));
         }
 
         public UserRoleGetModel GetById(int id)
@@ -42,10 +44,11 @@ namespace Labo2.Services
         }
 
 
-        public UserRoleGetModel Create(UserRolePostModel userRolePostModel)
+        public UserRoleGetModel Create(UserRolePostModel userRolePostModel, User currentUser)
         {
             UserRole toAdd = UserRolePostModel.ToUserRole(userRolePostModel);
 
+            toAdd.AddedBy = currentUser;
             context.UserRoles.Add(toAdd);
             context.SaveChanges();
             return UserRoleGetModel.FromUserRole(toAdd);
@@ -71,7 +74,7 @@ namespace Labo2.Services
         }
 
 
-        public UserRoleGetModel Delete(int id)
+        public UserRole Delete(int id)
         {
             var existing = context.UserRoles
                            .FirstOrDefault(ur => ur.Id == id);
@@ -83,7 +86,7 @@ namespace Labo2.Services
             context.UserRoles.Remove(existing);
             context.SaveChanges();
 
-            return UserRoleGetModel.FromUserRole(existing);
+            return (existing);
         }
 
     }

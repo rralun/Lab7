@@ -12,13 +12,9 @@ namespace Labo2.Services
     {
 
         PaginatedList<ExpenseGetModel> GetAll(int page, DateTime? from = null, DateTime? to = null, Models.Type? type = null);
-
         Expense GetById(int id);
-
         Expense Create(ExpensePostModel expense, User addedBy);
-
         Expense Upsert(int id, Expense expense);
-
         Expense Delete(int id);
 
     }
@@ -40,20 +36,20 @@ namespace Labo2.Services
             {
                 return null;
             }
+            toAdd.AddedBy = addedBy;
             context.Expenses.Add(toAdd);
             context.SaveChanges();
 
             return toAdd;
-            //Expense toAdd = ExpensePostModel.ToExpense(expense);
-            //toAdd.AddedBy = addedBy;
-            //context.Expenses.Add(toAdd);
-            //context.SaveChanges();
-            //return toAdd;
+
         }
 
         public Expense Delete(int id)
         {
-            var existing = context.Expenses.Include(x => x.Comments).FirstOrDefault(expense => expense.Id == id);
+            var existing = context
+                .Expenses
+                .Include(e => e.Comments)
+                .FirstOrDefault(expense => expense.Id == id);
             if (existing == null)
             {
                 return null;
@@ -91,12 +87,15 @@ namespace Labo2.Services
             paginatedResult.Entries = result.Select(e => ExpenseGetModel.FromExpense(e)).ToList();
 
             return paginatedResult;
-            
+
         }
 
         public Expense GetById(int id)
         {
-            return context.Expenses.Include(x => x.Comments).FirstOrDefault(e => e.Id == id);
+            return context
+                .Expenses
+                .Include(e => e.Comments)
+                .FirstOrDefault(e => e.Id == id);
         }
 
         public Expense Upsert(int id, Expense expense)
@@ -116,10 +115,6 @@ namespace Labo2.Services
             return expense;
         }
 
-        public object Upsert(int id, ExpensePostModel toExpense)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

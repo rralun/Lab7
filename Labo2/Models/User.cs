@@ -15,6 +15,7 @@ namespace Labo2.Models
         public string Username { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public bool Removed { get; set; }
         public DateTime DataRegistered { get; set; }
         public IEnumerable<User_UserRole> User_UserRoles { get; set; }
 
