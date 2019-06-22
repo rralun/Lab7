@@ -65,13 +65,12 @@ namespace Labo2.Services
                 context.SaveChanges();
                 return UserRoleGetModel.FromUserRole(toAdd);
             }
-            return null; 
 
-            //UserRole toUpdate = UserRolePostModel.ToUserRole(userRolePostModel);
-            //toUpdate.Id = id;
-            //context.UserRoles.Update(toUpdate);
-            //context.SaveChanges();
-            //return UserRoleGetModel.FromUserRole(toUpdate);
+            UserRole toUpdate = UserRolePostModel.ToUserRole(userRolePostModel);
+            toUpdate.Id = id;
+            context.UserRoles.Update(toUpdate);
+            context.SaveChanges();
+            return UserRoleGetModel.FromUserRole(toUpdate);
         }
 
 
