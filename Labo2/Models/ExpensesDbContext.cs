@@ -28,10 +28,10 @@ namespace Labo2.Models
                 .WithMany(c => c.Comments)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            //builder.Entity<Expense>()
-            //    .HasOne(e => e.AddedBy)
-            //    .WithMany(c => c.Expenses)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<Comment>()
+                .HasOne(c => c.AddedBy)
+                .WithMany(c => c.Comments)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Expense> Expenses { get; set; }

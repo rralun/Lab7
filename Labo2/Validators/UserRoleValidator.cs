@@ -9,19 +9,19 @@ namespace Labo2.Validators
 {
     public interface IUserRoleValidator
     {
-        ErrorsCollection Validate(UserRole userRole, ExpensesDbContext context);
+        ErrorsCollection Validate(User_UserRolePostModel user_userRolePostModel, ExpensesDbContext context);
     }
 
 
     public class UserRoleValidator : IUserRoleValidator
     {
-        public ErrorsCollection Validate(UserRole userRole, ExpensesDbContext context)
+        public ErrorsCollection Validate(User_UserRolePostModel user_userRolePostModel, ExpensesDbContext context)
         {
             ErrorsCollection errorsCollection = new ErrorsCollection { Entity = nameof(UserRole) };
 
             var existing = context
                 .UserRoles
-                .FirstOrDefault(userRole1 => userRole1.Name == userRole.Name);
+                .FirstOrDefault(userRole1 => userRole1.Name == user_userRolePostModel.UserRoleName);
             if (existing == null)
             {
                 errorsCollection.ErrorMessages.Add("The role does not exist !");

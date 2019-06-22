@@ -19,6 +19,6 @@ namespace Labo2.Models
         public DateTime DataRegistered { get; set; }
         public IEnumerable<User_UserRole> User_UserRoles { get; set; }
 
-
+        public List<Comment> Comments { get; set; }
     }
 }

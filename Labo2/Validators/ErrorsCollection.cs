@@ -8,6 +8,7 @@ namespace Labo2.Validators
     public class ErrorsCollection
     {
         public string Username;
+        public int Id;
 
         public ErrorsCollection()
         {
@@ -15,5 +16,6 @@ namespace Labo2.Validators
         }
         public string Entity { get; set; }
         public List<string> ErrorMessages { get; set; }
+       
     }
 }

@@ -32,10 +32,10 @@ namespace Labo2.Services
         public Expense Create(ExpensePostModel expense, User addedBy)
         {
             Expense toAdd = ExpensePostModel.ToExpense(expense);
-            if (toAdd == null)
-            {
-                return null;
-            }
+            //if (toAdd == null)
+            //{
+            //    return null;
+            //}
             toAdd.AddedBy = addedBy;
             context.Expenses.Add(toAdd);
             context.SaveChanges();
@@ -65,8 +65,10 @@ namespace Labo2.Services
                .Expenses
                .OrderBy(t => t.Id)
                .Include(t => t.Comments);
-            PaginatedList<ExpenseGetModel> paginatedResult = new PaginatedList<ExpenseGetModel>();
-            paginatedResult.CurrentPage = page;
+            PaginatedList<ExpenseGetModel> paginatedResult = new PaginatedList<ExpenseGetModel>
+            {
+                CurrentPage = page
+            };
 
             if (from != null)
             {

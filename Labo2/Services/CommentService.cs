@@ -10,7 +10,7 @@ namespace Labo2.Services
     {
         PaginatedList<CommentGetModel> GetAll(int page, string filter);
         Comment GetById(int id);
-        Comment Upsert(int id, Comment expense);
+        Comment Create(CommentPostModel expense, int id);
         Comment Delete(int id);
     }
     public class CommentService : ICommentService
@@ -28,10 +28,12 @@ namespace Labo2.Services
                 .Where(c => string.IsNullOrEmpty(filter) || c.Text.Contains(filter))
                 .OrderBy(c => c.Id)
                 .Include(c => c.Expense);
-            var paginatedResult = new PaginatedList<CommentGetModel>();
-            paginatedResult.CurrentPage = page;
+            var paginatedResult = new PaginatedList<CommentGetModel>
+            {
+                CurrentPage = page,
 
-            paginatedResult.NumberOfPages = (result.Count() - 1) / PaginatedList<CommentGetModel>.EntriesPerPage + 1;
+                NumberOfPages = (result.Count() - 1) / PaginatedList<CommentGetModel>.EntriesPerPage + 1
+            };
             result = result
                 .Skip((page - 1) * PaginatedList<CommentGetModel>.EntriesPerPage)
                 .Take(PaginatedList<CommentGetModel>.EntriesPerPage);
@@ -39,27 +41,36 @@ namespace Labo2.Services
 
             return paginatedResult;
         }
+        public Comment Create(CommentPostModel comment, int id)
+        {
+            Comment toAdd = CommentPostModel.ToComment(comment);
+            Expense expense = context.Expenses.FirstOrDefault(e => e.Id == id);
+            expense.Comments.Add(toAdd);
+            context.SaveChanges();
+            return toAdd;
 
+
+        }
         public Comment GetById(int id)
         {
             return context.Comment
                 .FirstOrDefault(c => c.Id == id);
         }
 
-        public Comment Upsert(int id, Comment expense)
-        {
-            var existing = context.Comment.AsNoTracking().FirstOrDefault(c => c.Id == id);
-            if (existing == null)
-            {
-                context.Comment.Add(expense);
-                context.SaveChanges();
-                return expense;
-            }
-            expense.Id = id;
-            context.Comment.Update(expense);
-            context.SaveChanges();
-            return expense;
-        }
+        //public Comment Upsert(int id, Comment expense)
+        //{
+        //    var existing = context.Comment.AsNoTracking().FirstOrDefault(c => c.Id == id);
+        //    if (existing == null)
+        //    {
+        //        context.Comment.Add(expense);
+        //        context.SaveChanges();
+        //        return expense;
+        //    }
+        //    expense.Id = id;
+        //    context.Comment.Update(expense);
+        //    context.SaveChanges();
+        //    return expense;
+        //}
 
 
         public Comment Delete(int id)

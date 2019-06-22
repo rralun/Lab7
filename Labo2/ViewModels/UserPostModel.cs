@@ -16,7 +16,9 @@ namespace Labo2.ViewModels
         public string Email { get; set; }
         public string Password { get; set; }
         public string UserRoles { get; set; }
-        
+        public DateTime DataRegistered { get; set; }
+       
+
 
         private static string ComputeSha256Hash(string rawData)
         {
@@ -41,10 +43,10 @@ namespace Labo2.ViewModels
 
         public static User ToUser(UserPostModel userModel)
         {
-            //UserRoles userRoles = Labo2.UserRoles.Regular;
-            if (userModel.UserRoles.Equals("Regular")) { }
-            else if (userModel.UserRoles.Equals( "UserManager")){}
-            else if (userModel.UserRoles.Equals("Admin")){}
+            ////UserRoles userRoles = Labo2.UserRoles.Regular;
+            //if (userModel.UserRoles.Equals("Regular")) { }
+            //else if (userModel.UserRoles.Equals( "UserManager")){}
+            //else if (userModel.UserRoles.Equals("Admin")){}
 
             return new User
             {
@@ -53,7 +55,7 @@ namespace Labo2.ViewModels
                 Username = userModel.Username,
                 Email = userModel.Email,
                 Password = ComputeSha256Hash(userModel.Password),
-                
+                DataRegistered = userModel.DataRegistered
             };
         }
     }

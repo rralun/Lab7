@@ -13,15 +13,15 @@ namespace Labo2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Regular")]
+    
     public class UserRolesController : ControllerBase
     {
         private IUserRoleService userRoleService;
         private IUsersService usersService;
-        public UserRolesController(IUserRoleService userRoleService, IUsersService usersService)
+        public UserRolesController(IUserRoleService userRoleService)
         {
             this.userRoleService = userRoleService;
-            this.usersService = usersService;
+            //this.usersService = usersService;
         }
 
         /// <summary>
@@ -84,10 +84,11 @@ namespace Labo2.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
+        [Authorize(Roles = "Admin,UserManager")]
         public void Post([FromBody] UserRolePostModel userRolePostModel)
         {
-            User addedBy = usersService.GetCurrentUser(HttpContext);
-            userRoleService.Create(userRolePostModel, addedBy);
+            //User addedBy = usersService.GetCurrentUser(HttpContext);
+            userRoleService.Create(userRolePostModel);//, addedBy);
             
         }
 
@@ -109,6 +110,7 @@ namespace Labo2.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Admin,UserManager")]
         public IActionResult Put(int id, [FromBody] UserRolePostModel userRolePostModel)
         {
             var result = userRoleService.Upsert(id, userRolePostModel);
@@ -125,12 +127,13 @@ namespace Labo2.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin,UserManager")]
         public IActionResult Delete(int id)
         {
             var result = userRoleService.Delete(id);
             if (result == null)
             {
-                return NotFound("User with the given id not fount !");
+                return NotFound("User with the given id not found !");
             }
             return Ok(result);
         }

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Labo2.Controllers
 {
-    [Authorize(Roles = "Admin,Regular")]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ExpensesController : ControllerBase
@@ -54,7 +54,7 @@ namespace Labo2.Controllers
         /// <returns>A list of expenses</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [AllowAnonymous]
+        
         // GET: api/Expenses
         [HttpGet]
         public PaginatedList<ExpenseGetModel> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to, [FromQuery]Models.Type? type, int page)
@@ -140,7 +140,7 @@ namespace Labo2.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[Authorize]
+        //[Authorize(Roles = "Admin,Regular")]
         // PUT: api/Expenses/2
         public IActionResult Put(int id, [FromBody] Expense expense)
         {
@@ -169,9 +169,9 @@ namespace Labo2.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[Authorize]
+        [Authorize(Roles = "Admin,Regular")]
         // DELETE: api/ApiWithActions/2
-       
+
         public IActionResult Delete(int id)
         {
             var result = expenseService.Delete(id);

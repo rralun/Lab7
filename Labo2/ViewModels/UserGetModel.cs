@@ -13,7 +13,7 @@ namespace Labo2.ViewModels
         public string LastName { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        
+        public bool Removed { get; set; }
 
 
         public static UserGetModel FromUser(User user)

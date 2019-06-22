@@ -35,6 +35,7 @@ namespace Labo2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddDbContext<ExpensesDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -58,13 +59,13 @@ namespace Labo2
                         Url = "https://example.com/license"
                     }
                 });
-                //c.AddSecurityDefinition("Bearer", new ApiKeyScheme()
-                //{
-                //    Description = "Authorization header using the Bearer scheme",
-                //    Name = "Authorization",
-                //    In = "header"
-                //});
-                //c.DocumentFilter<SwaggerSecurityRequirementsDocumentFilter>();
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme()
+                {
+                    Description = "Authorization header using the Bearer scheme",
+                    Name = "Authorization",
+                    In = "header"
+                });
+                c.DocumentFilter<SwaggerSecurityRequirementsDocumentFilter>();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -96,16 +97,21 @@ namespace Labo2
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<IRegisterValidator, RegisterValidator>();            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IRegisterValidator, RegisterValidator>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IUserRoleValidator, UserRoleValidator>();
-
-            //services.AddScoped<IUser_UserRolesService, User_UserRolesService>();
-
+            services.AddScoped<IUser_UserRoleService, User_UserRoleService>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
