@@ -60,27 +60,12 @@ namespace Labo2.Services
             this.config = config;
         }
 
-        //public UsersService(ExpensesDbContext context,
-        //    IRegisterValidator registerValidator,
-        //    IUser_UserRolesService user_userRolesService,
-        //    IOptions<AppSettings> appSettings)
-        //{
-        //    this.context = context;
-        //    this.appSettings = appSettings.Value;
-        //    this.registerValidator = registerValidator;
-        //    this.user_userRolesService = user_userRolesService;
-        //}
-
-        //public UsersService(ExpensesDbContext context, RegisterValidator registerValidator, IOptions<AppSettings> config)
-        //{
-        //    this.context = context;
-        //    this.registerValidator = registerValidator;
-        //    this.config = config;
-        //}
-
+      
         public LoginGetModel Authenticate(string username, string password)
         {
             var user = context.Users
+                .Include(u => u.User_UserRoles)
+                .ThenInclude(u_ur => u_ur.UserRole)
 				.AsNoTracking()
                 .FirstOrDefault(u => u.Username == username && u.Password == ComputeSha256Hash(password));
 			
@@ -112,7 +97,8 @@ namespace Labo2.Services
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
-                Token = tokenHandler.WriteToken(token)
+                Token = tokenHandler.WriteToken(token),
+                UserRole = user.User_UserRoles.First().UserRole.Name
             };
             
             return result;
@@ -243,56 +229,7 @@ namespace Labo2.Services
             return null;
         }
 
-        //public UserGetRoleModel RoleChanges(int id, string Role, User userCurrentLogin)
-        //{
-        //    DateTime dateCurrent = DateTime.Now;
-        //    TimeSpan diferenta = dateCurrent.Subtract(userCurrentLogin.DataRegistered);
-        //    var currentUserRole = GetCurrentUserRole(userCurrentLogin);
-        //    var user = context.Users.FirstOrDefault(u => u.Id == id);
-        //    var userRoleFromUserToChange = GetCurrentUserRole(user);
-        //    if ((currentUserRole.Name == "Admin" || diferenta.Days > 190) && userRoleFromUserToChange.Name != "Admin")
-        //    {
-
-        //        var userActiveRole = user.User_UserRoles.FirstOrDefault(role => role.EndTime == null);
-        //        userActiveRole.EndTime = DateTime.Now;
-        //        var regularRole = context
-        //           .UserRoles
-        //           .FirstOrDefault(ur => ur.Name == Role);
-        //        if (regularRole != null)
-        //        {
-        //            context.User_UserRoles.Add(new User_UserRole
-        //            {
-        //                User = user,
-        //                UserRole = regularRole,
-        //                StartTime = DateTime.Now,
-        //                EndTime = null,
-        //            });
-
-        //        }
-        //    }
-        //    return UserGetRoleModel.FromUser(user);
-
-        //}
-
-        //public IEnumerable<User_UserRoleGetModel> GetHistoryOfARole(int id)
-        //{
-
-        //    var result = context
-        //        .User_UserRoles
-        //        .Select(user_userRole => new User_UserRoleGetModel
-        //        {
-        //            User = user_userRole.User,
-        //            UserRole = user_userRole.UserRole,
-        //            StartTime = user_userRole.StartTime,
-        //            EndTime = user_userRole.EndTime,
-
-        //        }).Where(u => u.User.Id == id).OrderBy(us => us.StartTime).ToList();
-
-        //    return result;
-        //}
-
-
-
+       
         public UserGetModel Upsert(int id, UserPostModel userPostModel)
         {
             var existing = context.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);

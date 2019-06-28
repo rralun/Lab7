@@ -18,16 +18,16 @@ namespace Tests
     {
         private IOptions<AppSettings> config;
 
-
         [SetUp]
         public void Setup()
         {
             config = Options.Create(new AppSettings
             {
+                //trebuie sa fie suficient de lung sirul de caractere.
                 Secret = "My secret string for tests"
             });
-        }
 
+        }
         [Test]
         public void ValidRegisterShouldCreateANewUser()
         {
@@ -38,7 +38,7 @@ namespace Tests
             using (var context = new ExpensesDbContext(options))
             {
                 var validator = new UserRoleValidator();
-                var user_userRoleService = new User_UserRoleService(validator,context);
+                var user_userRoleService = new User_UserRoleService(validator, context);
                 UsersService usersService = new UsersService(context, registerValidator, config, user_userRoleService);
                 var userRole = new UserRole
                 {
@@ -262,7 +262,7 @@ namespace Tests
                 var userById = usersService.GetById(added.Id);
 
                 Assert.IsNotNull(userById);
-                //Assert.AreEqual(1, userById.Id);
+                Assert.AreEqual(1, userById.Id);
                 Assert.AreEqual("User", userById.FirstName);
 
             }
@@ -326,6 +326,15 @@ namespace Tests
                 var validator = new UserRoleValidator();
                 var user_userRoleService = new User_UserRoleService(validator, context);
                 UsersService usersService = new UsersService(context, registerValidator, config, user_userRoleService);
+
+                UserRole addUserRoleRegular = new UserRole
+                {
+                    Name = "Regular",
+                    Description = "Creat pentru testare"
+                };
+                context.UserRoles.Add(addUserRoleRegular);
+                context.SaveChanges();
+
                 var added = new RegisterPostModel
                 {
                     Email = "userTest@test.com",
@@ -341,7 +350,7 @@ namespace Tests
 
                 Assert.IsNotNull(user);
                 //var currentUserRole = usersService.GetCurrentUserRole();
-                // Assert.AreEqual("Regular", currentUserRole.Name);
+                //Assert.AreEqual("Regular", currentUserRole.Name);
             }
         }
         [Test]
@@ -394,6 +403,14 @@ namespace Tests
                 //usersController.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext();
                 //usersController.ControllerContext.HttpContext = new DefaultHttpContext();
                 // usersController.ControllerContext.HttpContext.Items.Add("user-Name", "Ghita");
+                UserRole addUserRoleRegular = new UserRole
+                {
+                    Name = "Regular",
+                    Description = "Creat pentru testare"
+                };
+                context.UserRoles.Add(addUserRoleRegular);
+                context.SaveChanges();
+
 
                 var added = new RegisterPostModel
                 {
@@ -410,7 +427,7 @@ namespace Tests
 
                 //User userRole = usersService.GetCurrentUser(user);
 
-                //Assert.IsNotNull(user);
+                Assert.IsNotNull(user);
                 //Assert.AreEqual(resultAuthentificate, userRole.Id);
             }
         }
