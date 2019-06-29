@@ -154,7 +154,7 @@ namespace Labo2.Controllers
 
 
         /// <summary>
-        /// Modify an user if exists in dbSet , or add if not exist
+        /// Modify an user if exist in dbSet , or add if not exist
         /// </summary>
         /// <param name="id">id-ul user to update</param>
         /// <param name="userPostModel"></param>
@@ -233,37 +233,6 @@ namespace Labo2.Controllers
             }
             return Ok(result);
         }
-
-        //[HttpPut]
-        //[HttpPost]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public IActionResult RoleChanges([FromQuery]int id, [FromBody] string Role)
-        //{
-           
-        //    var currentUser = userService.GetCurrentUser(HttpContext);
-        //    var existing = userService.RoleChanges(id, Role, currentUser);
-        //    if (existing == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return Ok(existing);
-
-        //}
-
-        //[HttpGet("{id}", Name = "GetHistoryRoles")]
-        //public IActionResult GetHistoryOfARole(int id)
-        //{
-        //    var found = userService.GetHistoryOfARole(id);
-
-        //    if (found == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return Ok(found);
-        //}
 
     }
 }
